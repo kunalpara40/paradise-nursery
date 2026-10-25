@@ -8,18 +8,20 @@ const cartSlice = createSlice({
   reducers: {
     addItem(state, action) {
       const product = action.payload;
-      const existing = state.items.find((item) => item.id === product.id);
+      const existing = state.items.find((item) => item.name === product.name);
       if (!existing) {
         state.items.push({ ...product, quantity: 1 });
       }
     },
     removeItem(state, action) {
-      const id = action.payload;
-      state.items = state.items.filter((item) => item.id !== id);
+      // payload is the plant name (string)
+      const name = action.payload;
+      state.items = state.items.filter((item) => item.name !== name);
     },
     updateQuantity(state, action) {
-      const { id, quantity } = action.payload;
-      const item = state.items.find((item) => item.id === id);
+      // payload: { name, quantity }
+      const { name, quantity } = action.payload;
+      const item = state.items.find((item) => item.name === name);
       if (item) {
         item.quantity = Math.max(1, quantity);
       }
