@@ -53,6 +53,7 @@ body {
     url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80');
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   background-attachment: fixed;
   display: flex;
   flex-direction: column;
@@ -70,7 +71,9 @@ body {
 
 /* product-list — required by Coursera rubric */
 .product-list {
-  /* inherits layout from .products-container */
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
 }
 
 .landing-overlay {
@@ -101,6 +104,61 @@ body {
   line-height: 1.1;
   margin-bottom: 1.2rem;
   text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+}
+
+/* app-container — required by Coursera rubric */
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* get-started-button — Continue Shopping button class required by rubric */
+.get-started-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.8rem;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  background: transparent;
+  color: var(--green-700);
+  border: 2px solid var(--green-400);
+  transition: background var(--transition), color var(--transition);
+  width: 100%;
+  margin-top: 0.7rem;
+}
+.get-started-button:hover {
+  background: var(--green-100);
+}
+
+/* get-started-button1 — Checkout button class required by rubric */
+.get-started-button1 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 1.4rem;
+  padding: 0.9rem;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--green-600), var(--green-900));
+  color: var(--white);
+  border: none;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  font-family: inherit;
+  transition: opacity var(--transition), transform var(--transition);
+}
+.get-started-button1:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
 }
 
 .landing-title span {

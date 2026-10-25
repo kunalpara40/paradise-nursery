@@ -1,25 +1,29 @@
 import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { removeItem, updateQuantity } from './CartSlice';
 import Navbar from './Navbar';
 import './App.css';
 
 function CartItem() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   // `cart` variable name used throughout per rubric
   const cart = useSelector((state) => state.cart.items);
   const [showToast, setShowToast] = useState(false);
 
   const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const totalCost = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  // Support both item.price and item.cost for forward-compatibility
+  const getPrice = (item) => item.price ?? item.cost ?? 0;
+  const totalCost = cart.reduce((sum, item) => sum + getPrice(item) * item.quantity, 0);
 
   // handleIncrement — exact name required by rubric
   const handleIncrement = (item) => {
     dispatch(updateQuantity({ name: item.name, quantity: item.quantity + 1 }));
   };
 
-  // handleDecrement — decreases quantity; removes item when it would fall below 1
+  // handleDecrement — decreases quantity; removes item when quantity would reach 0
   const handleDecrement = (item) => {
     if (item.quantity > 1) {
       dispatch(updateQuantity({ name: item.name, quantity: item.quantity - 1 }));
@@ -28,14 +32,19 @@ function CartItem() {
     }
   };
 
-  // handleRemove — called with full item object; dispatches removeItem with item.name
+  // handleRemove — dispatches removeItem with item.name to match CartSlice
   const handleRemove = (item) => {
     dispatch(removeItem(item.name));
   };
 
+  // handleContinueShopping — exact function name required by rubric
+  const handleContinueShopping = () => {
+    navigate('/products');
+  };
+
   const handleCheckout = () => {
     setShowToast(true);
-    setTimeout(() => setShowToast(false), 3500);
+    setTimeout(() => setShowToast(false), 4000);
   };
 
   const handleImgError = (e) => {
@@ -55,73 +64,80 @@ function CartItem() {
             <div className="cart-empty-icon">🌿</div>
             <h2>Your cart is empty</h2>
             <p>Looks like you haven't added any plants yet. Go explore our collection!</p>
-            <Link to="/products" className="btn-primary" style={{ display: 'inline-flex' }}>
+            {/* get-started-button class on Continue Shopping per rubric */}
+            <button
+              className="btn-primary get-started-button"
+              onClick={handleContinueShopping}
+            >
               🌱 Browse Plants
-            </Link>
+            </button>
           </div>
         ) : (
           <div className="cart-layout">
             {/* Items list — map over `cart` */}
             <div className="cart-items-list" aria-label="Cart items">
-              {cart.map((item) => (
-                <div
-                  className="cart-item-card"
-                  key={item.name}
-                  role="article"
-                  aria-label={item.name}
-                >
-                  <img
-                    className="cart-item-img"
-                    src={item.image}
-                    alt={item.name}
-                    onError={handleImgError}
-                  />
+              {cart.map((item) => {
+                const unitPrice = getPrice(item);
+                return (
+                  <div
+                    className="cart-item-card"
+                    key={item.name}
+                    role="article"
+                    aria-label={item.name}
+                  >
+                    <img
+                      className="cart-item-img"
+                      src={item.image}
+                      alt={item.name}
+                      onError={handleImgError}
+                    />
 
-                  <div className="cart-item-info">
-                    <p className="cart-item-name">{item.name}</p>
-                    <p className="cart-item-unit-price">
-                      Unit price: ${item.price.toFixed(2)}
-                    </p>
+                    <div className="cart-item-info">
+                      <p className="cart-item-name">{item.name}</p>
+                      <p className="cart-item-unit-price">
+                        Unit price: ${unitPrice.toFixed(2)}
+                      </p>
 
-                    <div
-                      className="quantity-controls"
-                      aria-label={`Quantity for ${item.name}`}
-                    >
-                      <button
-                        className="qty-btn"
-                        onClick={() => handleDecrement(item)}
-                        aria-label={`Decrease quantity of ${item.name}`}
+                      <div
+                        className="quantity-controls"
+                        aria-label={`Quantity for ${item.name}`}
                       >
-                        −
-                      </button>
-                      <span className="qty-value" aria-live="polite">
-                        {item.quantity}
-                      </span>
+                        <button
+                          className="qty-btn"
+                          onClick={() => handleDecrement(item)}
+                          aria-label={`Decrease quantity of ${item.name}`}
+                        >
+                          −
+                        </button>
+                        <span className="qty-value" aria-live="polite">
+                          {item.quantity}
+                        </span>
+                        <button
+                          className="qty-btn"
+                          onClick={() => handleIncrement(item)}
+                          aria-label={`Increase quantity of ${item.name}`}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="cart-item-right">
+                      <p className="cart-item-total">
+                        ${(unitPrice * item.quantity).toFixed(2)}
+                      </p>
+                      {/* cart-item-delete — exact class name required by rubric */}
                       <button
-                        className="qty-btn"
-                        onClick={() => handleIncrement(item)}
-                        aria-label={`Increase quantity of ${item.name}`}
+                        className="btn-remove cart-item-delete"
+                        onClick={() => handleRemove(item)}
+                        aria-label={`Remove ${item.name} from cart`}
                       >
-                        +
+                        🗑 Delete
                       </button>
                     </div>
                   </div>
-
-                  <div className="cart-item-right">
-                    <p className="cart-item-total">
-                      ${(item.price * item.quantity).toFixed(2)}
-                    </p>
-                    {/* cart-item-delete class required by rubric */}
-                    <button
-                      className="btn-remove cart-item-delete"
-                      onClick={() => handleRemove(item)}
-                      aria-label={`Remove ${item.name} from cart`}
-                    >
-                      🗑 Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Summary sidebar */}
@@ -149,26 +165,32 @@ function CartItem() {
                 </span>
               </div>
 
+              {/* get-started-button1 — exact class name required by rubric */}
               <button
-                className="checkout-btn"
+                className="checkout-btn get-started-button1"
                 onClick={handleCheckout}
                 aria-label="Proceed to checkout"
               >
                 Checkout →
               </button>
 
-              <Link to="/products" className="continue-btn">
+              {/* get-started-button — exact class name required by rubric */}
+              <button
+                className="continue-btn get-started-button"
+                onClick={handleContinueShopping}
+                aria-label="Continue shopping"
+              >
                 ← Continue Shopping
-              </Link>
+              </button>
             </aside>
           </div>
         )}
       </div>
 
-      {/* Coming Soon message */}
+      {/* Visible Coming Soon message when showToast is true */}
       {showToast && (
         <div className="coming-soon-toast" role="alert" aria-live="assertive">
-          🚧 Coming Soon — Checkout is not yet available. Stay tuned!
+          🚧 Coming Soon — Checkout will be available soon. Stay tuned!
         </div>
       )}
     </div>

@@ -1,6 +1,6 @@
-# Paradise Nursery Shopping Application
+# e-plantShopping
 
-A complete, production-quality e-commerce web application built with **React + Vite** for the IBM Full Stack JavaScript Developer Coursera capstone project.
+A complete, production-quality Paradise Nursery plant-shopping e-commerce application built with **React + Vite** for the IBM Full Stack JavaScript Developer Coursera capstone project.
 
 ---
 
